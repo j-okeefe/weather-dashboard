@@ -4,8 +4,8 @@ var today = moment().format('MM/DD/YY')
 
 // clicking search button provides results
 $('document').ready(function () {
-  $('#searchBtn').click(currentCity);
-  $('#searchBtn').click(cityForecast);
+  $('#searchBtn').click(currentCity)
+  $('#searchBtn').click(cityForecast)
 })
 
 // adds searched city to list
@@ -29,7 +29,7 @@ function currentCity() {
 
       var cityName = data.name
       var temp = Math.floor(data.main.temp)
-      var humidity = data.main.humidity;
+      var humidity = data.main.humidity
       var wind = Math.floor(data.wind.speed)
       var icon =
         'https://openweathermap.org/img/w/' + data.weather[0].icon + '.png'
@@ -40,24 +40,24 @@ function currentCity() {
       $('.curTemp').append('Temperature: ' + temp + ' °F')
       $('.curHumidity').append('Humidity: ' + humidity + '%')
       $('.curWind').append('Wind Speed: ' + wind + ' MPH')
+      uvIndex(data.coord.lat, data.coord.lon)
     },
   )
-
-  // uvIndex(data.coord.lon, data.coord.lat)
+  cityHistory()
 }
 
 // sets UV Index
-function uvIndex(ln, lt) {
+function uvIndex(lat, lon) {
   $.getJSON(
-    'https://api.openweathermap.org/data/2.5/uvi?appid=' +
-      apiKey +
-      '&lat=' +
-      lt +
+    'https://api.openweathermap.org/data/2.5/onecall' +
+      '?lat=' +
+      lat +
       '&lon=' +
-      ln,
+      lon +
+      apiKey,
     function (data) {
       console.log(data)
-      $('.curUV').append('UV Index: ' + data.value)
+      $('.curUV').append('UV Index: ' + data.current.uvi)
     },
   )
 }
@@ -66,7 +66,7 @@ function uvIndex(ln, lt) {
 function cityForecast() {
   var city = $('#citySearch').val()
   $.getJSON(
-    'https://api.openweathermap.org/data/2.5/weather?q=' +
+    'https://api.openweathermap.org/data/2.5/forecast?q=' +
       city +
       '&units=imperial' +
       apiKey,
@@ -74,16 +74,17 @@ function cityForecast() {
       console.log(data)
 
       for (i = 0; i < 5; i++) {
-        var date = moment().add(1, 'days').format('MM/DD/YY');
-        var iconId = data.weather[0].icon;
-        var icon = 'https://openweathermap.org/img/w/' + iconId + '.png';
-        var temp = Math.floor(data.main.temp); 
-        var humidity = data.main.humidity;
+        var date = moment().add(1, 'days').format('MM/DD/YY')
+        var iconId = data.list[(i + 1) * 8 - 1].weather[0].icon
+        var icon = 'https://openweathermap.org/img/w/' + iconId + '.png'
+        var temp = Math.floor(data.list[(i + 1) * 8 - 1].main.temp)
+        var humidity = data.list[(i + 1) * 8 - 1].main.humidity
 
-        $(".date"+i).append(date);
-        $(".icon"+i).append("<img src="+icon+">");
-        $(".temp"+i).append(temp);
-        $(".humid"+i).append(humidity+"%");
-      };
-    });
-};
+        $('.date' + i).append(date)
+        $('.icon' + i).attr('src', icon)
+        $('.temp' + i).append('Temperature: ' + temp)
+        $('.humid' + i).append('Humidity: ' + humidity + '%')
+      }
+    },
+  )
+}
